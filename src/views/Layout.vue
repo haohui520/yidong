@@ -1,13 +1,16 @@
 <template>
   <div class='container'>
-    <!-- 导航栏 -->
-    <van-nav-bar fixed title="黑马头条" right-text="搜索" @click-right="$router.push('/search')"/>
+    <!-- 导航栏  ，点击搜索跳转到搜索页面fixed固定-->
+    <van-nav-bar v-if="path!=='/user'" fixed title="黑马头条" right-text="搜索" @click-right="$router.push('/search')"/>
     <!-- 内容容器 -->
-    <div class="my-wrapper" >
+    <div class="my-wrapper" :class="{noTop:path==='/user'}">
       <!-- 二级路由组件显示位置 -->
-      <router-view></router-view>
+      <keep-alive>
+        <router-view v-if="$route.meta.keepAlive"></router-view>
+      </keep-alive>
+      <router-view v-if="!$route.meta.keepAlive"></router-view>
     </div>
-    <!-- tab栏 -->
+    <!-- tab栏 ＋route开启路由模式-->
     <van-tabbar route>
       <van-tabbar-item to="/" icon="home-o">首页</van-tabbar-item>
       <van-tabbar-item to="/question"  icon="chat-o">问答</van-tabbar-item>
@@ -19,7 +22,12 @@
 
 <script>
 export default {
-  name: 'layout'
+  name: 'layout',
+  computed: {
+    path () {
+      return this.$route.path
+    }
+  }
 }
 </script>
 

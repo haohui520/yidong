@@ -57,7 +57,9 @@ instance.interceptors.response.use(res => {
     const user = store.state.user
     // 没登录 (严谨代码)
     if (!user || !user.token || !user.refresh_token) {
-      return router.push(loginConfig)
+      router.push(loginConfig)
+      // 让函数接受一个错误的promise 阻止程序运行
+      return Promise.reject(err)
     }
     try {
       // 发刷新token的请求
@@ -71,6 +73,7 @@ instance.interceptors.response.use(res => {
       })
       // res是响应对象  res.data.data.token 返回的token
       // 更新vuex和本地token  使用 mutations中的setUser即可
+      // 使用vuex时 官方推荐使用commit才修改state数据。
       store.commit('setUser', {
         token: data.token,
         refresh_token: user.refresh_token
@@ -82,7 +85,9 @@ instance.interceptors.response.use(res => {
     } catch (e) {
       // 刷新token失败
       store.commit('delUser')
-      return router.push(loginConfig)
+      router.push(loginConfig)
+      // 让函数接受一个错误的promise 阻止程序运行
+      return Promise.reject(err)
     }
   }
   return Promise.reject(err)
@@ -99,7 +104,7 @@ export default (url, method, data) => {
     url,
     method,
     // js表达式运行的结果必须是字符串（params|data）
-    // 严谨处理  get Get GET 都认为是get
+    // 严谨处理  get Get GET 都认为是get toLowerCase会变成大写
     [method.toLowerCase() === 'get' ? 'params' : 'data']: data
   })
 }
